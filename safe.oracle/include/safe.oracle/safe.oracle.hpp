@@ -31,18 +31,20 @@ namespace eosio {
          safeoracle( name receiver, name code,  datastream__const_char ds );
 
          [[eosio::action]]
-         void pushcctx( string txid, asset ccamount, name account );
+         void pushcctx( checksum256 txid, asset ccamount, name account );
 
          [[eosio::action]]
-         void drawasset( string txid, name account );
+         void drawasset( checksum256 txid, name account );
+
+         //[[eosio::action]]
+         //void test( checksum256 xtxid );
 
       private:
 
          struct [[eosio::table]] cctx {
             uint64_t          id;         //auto increament
             name              account;    //target account who is in safecode chain
-            string            txid;       //txid at safe chain
-            checksum256       xtxid;      //hex txid, for second-index only
+            checksum256       txid;       //txid at safe chain
             asset             ccasset;    //asset(amount and token) at txid to account
             uint8_t           status;     //0: new for being drawed; 1: has been drawed
 
@@ -51,14 +53,14 @@ namespace eosio {
                return (id);
             }
 
-            checksum256 get_xtxid() const
+            checksum256 get_txid() const
             {
-               return (xtxid);
+               return (txid);
             }
          };
 
          typedef eosio::multi_index<"cctx"_n, cctx, 
-            indexed_by<"xtxid"_n, const_mem_fun<cctx, checksum256, &cctx::get_xtxid>>
+            indexed_by<"txid"_n, const_mem_fun<cctx, checksum256, &cctx::get_txid>>
         > type_table__cctx;
    };
 
