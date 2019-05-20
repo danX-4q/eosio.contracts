@@ -35,6 +35,29 @@ void safeoracle::pushcctx( checksum256 txid, asset ccasset, name account )
     });
 }
 
+void safeoracle::drawasset( checksum256 txid, name account )
+{
+    require_auth( account );
+    ///////////////////////////////////////////////////////
+    DEBUG_PRINT_VAR( txid );
+    DEBUG_PRINT_VAR( account );
+
+    type_table__cctx tbl_cctx(get_self(), "global"_n.value);
+    auto txid_index = tbl_cctx.get_index<"txid"_n>();
+    auto itr_find_tx = txid_index.lower_bound(txid);
+    eosio_assert( itr_find_tx != txid_index.end(), "error, txid has not been pushed once." );
+
+    auto id = itr_find_tx->id;
+    eosio_assert( itr_find_tx->status == 0, "error, txid has not been drawed once." );
+
+    auto itr_find_id = tbl_cctx.find(id);
+    tbl_cctx.modify(itr_find_id, get_self(), [&]( auto& row ) {
+        row.status = 1;
+    });
+
+    //then cast asset!
+}
+
 /*void safeoracle::test( checksum256 xtxid )
 {
     DEBUG_PRINT_VAR( xtxid );
@@ -42,4 +65,4 @@ void safeoracle::pushcctx( checksum256 txid, asset ccasset, name account )
 
 } /// namespace eosio
 
-EOSIO_DISPATCH( eosio::safeoracle, (pushcctx) )
+EOSIO_DISPATCH( eosio::safeoracle, (pushcctx)(drawasset) )
