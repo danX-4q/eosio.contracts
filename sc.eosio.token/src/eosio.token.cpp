@@ -165,6 +165,11 @@ void token::close( name owner, const symbol& symbol )
    acnts.erase( it );
 }
 
+void token::castasset( name account, asset quantity )
+{
+   
+}
+
 } /// namespace eosio
 
-EOSIO_DISPATCH( eosio::token, (create)(issue)(transfer)(open)(close)(retire) )
+EOSIO_DISPATCH( eosio::token, (create)(issue)(transfer)(open)(close)(retire)(castasset) )
