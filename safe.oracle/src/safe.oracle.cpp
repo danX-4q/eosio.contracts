@@ -71,15 +71,15 @@ void safeoracle::drawasset( checksum256 txid )
 
     //cast asset
     action(
-        permission_level{"eosio.token"_n, "active"_n},
+        permission_level{"eosio.token"_n, "crosschain"_n},
         "eosio.token"_n, "castcreate"_n,
         std::make_tuple( ccasset )
     ).send();
 
     //issue asset
     action(
-        permission_level{"eosio"_n, "active"_n},
-        "eosio.token"_n, "issue"_n,
+        permission_level{"eosio"_n, "crosschain"_n},
+        "eosio.token"_n, "castissue"_n,
         std::make_tuple( to, ccasset, string("issue by safeoracle::drawasset") )
     ).send();
     

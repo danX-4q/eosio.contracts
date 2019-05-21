@@ -54,6 +54,15 @@ namespace eosio {
          [[eosio::action]]
          void castcreate( asset quantity );
 
+         [[eosio::action]]
+         void castissue( name to, asset quantity, string memo );
+
+         [[eosio::action]]
+         void casttransfer( name    from,
+                            name    to,
+                            asset   quantity,
+                            string  memo );
+
          static asset get_supply( name token_contract_account, symbol_code sym_code )
          {
             stats statstable( token_contract_account, sym_code.raw() );
