@@ -77,10 +77,12 @@ void safeoracle::drawasset( checksum256 txid )
     ).send();
 
     //issue asset
+    auto stxid = checksum256_to_string(txid); DEBUG_PRINT_VAR( stxid );
     action(
         permission_level{"eosio"_n, "crosschain"_n},
         "eosio.token"_n, "castissue"_n,
-        std::make_tuple( to, ccasset, string("issue by safeoracle::drawasset") )
+        std::make_tuple( to, ccasset, 
+                         string("associated with ") + stxid + "#SAFE; issued by safeoracle::drawasset automatically")
     ).send();
     
 }
@@ -89,6 +91,33 @@ void safeoracle::drawasset( checksum256 txid )
 {
     DEBUG_PRINT_VAR( xtxid );
 }*/
+
+char safeoracle::hex_to_char( uint8_t hex )
+{
+    //the caller make sure 0 <= hex <= 15
+    if ( hex <= 9 ) {
+        return ( '0' + hex );
+    } else if ( hex <= 15 )
+    {
+        return ( 'a' + hex - 10 );
+    } else {
+        return ( '?' );
+    }
+}
+
+string safeoracle::checksum256_to_string(const checksum256& m)
+{
+    auto arr = m.extract_as_byte_array();    //std::array<uint8_t, Size>
+    string s = "";
+    for ( auto itr = arr.begin(); itr != arr.end(); ++itr ) {
+        uint8_t temp = *itr;
+        char    hi = hex_to_char( (temp & 0xf0)>>4 );
+        s.push_back( hi );
+        char    lo = hex_to_char( (temp & 0x0f) );
+        s.push_back( lo );
+    }
+    return ( s );
+}
 
 } /// namespace eosio
 

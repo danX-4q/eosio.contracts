@@ -61,7 +61,10 @@ namespace eosio {
 
          typedef eosio::multi_index<"cctx"_n, cctx, 
             indexed_by<"txid"_n, const_mem_fun<cctx, checksum256, &cctx::get_txid>>
-        > type_table__cctx;
+         > type_table__cctx;
+
+         static string checksum256_to_string( const checksum256& m );
+         static char hex_to_char( uint8_t hex );
    };
 
 } /// namespace eosio

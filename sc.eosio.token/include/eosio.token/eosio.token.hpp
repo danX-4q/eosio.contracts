@@ -54,9 +54,17 @@ namespace eosio {
          [[eosio::action]]
          void castcreate( asset quantity );
 
+         /**
+          * castissue
+          *    as same as issue, except ```require_auth( permission_level{st.issuer, "crosschain"_n} );```
+          */
          [[eosio::action]]
          void castissue( name to, asset quantity, string memo );
 
+         /**
+          * casttransfer
+          *    as same as transfer, except ```require_auth( permission_level{from, "crosschain"_n} );```
+          */
          [[eosio::action]]
          void casttransfer( name    from,
                             name    to,
