@@ -76,14 +76,13 @@ void safeoracle::drawasset( checksum256 txid )
         std::make_tuple( ccasset )
     ).send();
 
-    /*
     //issue asset
     action(
         permission_level{"eosio"_n, "active"_n},
         "eosio.token"_n, "issue"_n,
         std::make_tuple( to, ccasset, string("issue by safeoracle::drawasset") )
     ).send();
-    */
+    
 }
 
 /*void safeoracle::test( checksum256 xtxid )
