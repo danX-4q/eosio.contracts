@@ -165,11 +165,30 @@ void token::close( name owner, const symbol& symbol )
    acnts.erase( it );
 }
 
-void token::castasset( name account, asset quantity )
+void token::castcreate( asset quantity )
 {
-   
+   require_auth( _self );  //need eosio.token
+
+   auto sym = quantity.symbol;
+   eosio_assert( sym.is_valid(), "invalid symbol name" );
+   eosio_assert( quantity.is_valid(), "invalid supply");
+   eosio_assert( quantity.amount > 0, "quantity must be positive");
+
+   stats statstable( _self, sym.code().raw() );
+   auto existing = statstable.find( sym.code().raw() );
+   if ( existing == statstable.end() ) {
+      statstable.emplace( _self, [&]( auto& s ) {
+         s.max_supply   = quantity;
+         s.issuer       = "eosio"_n;
+      });
+   } else {
+      eosio_assert( existing->issuer == "eosio"_n, "existed issuer must be 'eosio'" );
+      statstable.modify( existing, same_payer, [&]( auto& s ) {
+         s.max_supply   += quantity;
+      });
+   }
 }
 
 } /// namespace eosio
 
-EOSIO_DISPATCH( eosio::token, (create)(issue)(transfer)(open)(close)(retire)(castasset) )
+EOSIO_DISPATCH( eosio::token, (create)(issue)(transfer)(open)(close)(retire)(castcreate) )

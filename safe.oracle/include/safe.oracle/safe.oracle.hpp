@@ -34,7 +34,7 @@ namespace eosio {
          void pushcctx( checksum256 txid, asset ccamount, name account );
 
          [[eosio::action]]
-         void drawasset( checksum256 txid, name account );
+         void drawasset( checksum256 txid );
 
          //[[eosio::action]]
          //void test( checksum256 xtxid );

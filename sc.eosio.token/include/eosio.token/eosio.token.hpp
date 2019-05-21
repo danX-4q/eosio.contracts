@@ -44,17 +44,15 @@ namespace eosio {
          void close( name owner, const symbol& symbol );
 
          /**
-          * castasset
+          * castcreate
           * if [para]quantity.symbol has been not existed in [table]stat, then:
-          *    1) [table]stat create [para]quantity.symbol with issuer = eosio.token, max_supply = supply = [para]quantity
-          *    2) [table]accounts.balance = quantity; create [para]account if not exists
-          * if quantity.symbol has been existed in [table]stat, then:
+          *    1) [table]stat create [para]quantity.symbol with issuer = eosio, max_supply = supply = [para]quantity
+          * else:
           *    1) [table]stat.max_supply += quantity
           *    2) [table]stat.supply += quantity
-          *    3) [table]accounts.balance += quantity; create [para]account if not exists
           */
          [[eosio::action]]
-         void castasset( name account, asset quantity );
+         void castcreate( asset quantity );
 
          static asset get_supply( name token_contract_account, symbol_code sym_code )
          {

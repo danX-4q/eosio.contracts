@@ -24,6 +24,9 @@ void safeoracle::pushcctx( checksum256 txid, asset ccasset, name account )
     type_table__cctx tbl_cctx(get_self(), "global"_n.value);
     auto txid_index = tbl_cctx.get_index<"txid"_n>();
     auto itr_find_tx = txid_index.lower_bound(txid);
+    if( itr_find_tx != txid_index.end() ) {
+        DEBUG_PRINT_VAR(itr_find_tx->txid);
+    }
     eosio_assert( itr_find_tx == txid_index.end(), "error, txid has been pushed once." );
 
     tbl_cctx.emplace(get_self(), [&]( auto& row ) {
@@ -35,12 +38,10 @@ void safeoracle::pushcctx( checksum256 txid, asset ccasset, name account )
     });
 }
 
-void safeoracle::drawasset( checksum256 txid, name account )
+void safeoracle::drawasset( checksum256 txid )
 {
-    require_auth( account );
-    ///////////////////////////////////////////////////////
     DEBUG_PRINT_VAR( txid );
-    DEBUG_PRINT_VAR( account );
+    ///////////////////////////////////////////////////////
 
     type_table__cctx tbl_cctx(get_self(), "global"_n.value);
     auto txid_index = tbl_cctx.get_index<"txid"_n>();
@@ -48,14 +49,32 @@ void safeoracle::drawasset( checksum256 txid, name account )
     eosio_assert( itr_find_tx != txid_index.end(), "error, txid has not been pushed once." );
 
     auto id = itr_find_tx->id;
+    auto to = itr_find_tx->account;
+    auto ccasset = itr_find_tx->ccasset;
+
     eosio_assert( itr_find_tx->status == 0, "error, txid has not been drawed once." );
+    require_auth( to ); //only [table]tbl_cctx.account can draw the asset!
 
     auto itr_find_id = tbl_cctx.find(id);
     tbl_cctx.modify(itr_find_id, get_self(), [&]( auto& row ) {
         row.status = 1;
     });
 
-    //then cast asset!
+    //cast asset
+    action(
+        permission_level{"eosio.token"_n, "active"_n},
+        "eosio.token"_n, "castcreate"_n,
+        std::make_tuple( ccasset )
+    ).send();
+
+    /*
+    //issue asset
+    action(
+        permission_level{"eosio"_n, "active"_n},
+        "eosio.token"_n, "issue"_n,
+        std::make_tuple( to, ccasset, string("issue by safeoracle::drawasset") )
+    ).send();
+    */
 }
 
 /*void safeoracle::test( checksum256 xtxid )
