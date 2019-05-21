@@ -23,11 +23,14 @@ void safeoracle::pushcctx( checksum256 txid, asset ccasset, name account )
 
     type_table__cctx tbl_cctx(get_self(), "global"_n.value);
     auto txid_index = tbl_cctx.get_index<"txid"_n>();
-    auto itr_find_tx = txid_index.lower_bound(txid);
-    if( itr_find_tx != txid_index.end() ) {
-        DEBUG_PRINT_VAR(itr_find_tx->txid);
-    }
-    eosio_assert( itr_find_tx == txid_index.end(), "error, txid has been pushed once." );
+    auto itr_find_tx= txid_index.lower_bound(txid);
+    auto itr_find_tx_up = txid_index.upper_bound(txid);
+    for( ; itr_find_tx != itr_find_tx_up; ++itr_find_tx ) {
+        if( itr_find_tx->txid == txid ) {
+            break;
+        }
+    };
+    eosio_assert( itr_find_tx == itr_find_tx_up, "error, txid has been pushed once." );
 
     tbl_cctx.emplace(get_self(), [&]( auto& row ) {
         row.id = tbl_cctx.available_primary_key();
@@ -46,7 +49,13 @@ void safeoracle::drawasset( checksum256 txid )
     type_table__cctx tbl_cctx(get_self(), "global"_n.value);
     auto txid_index = tbl_cctx.get_index<"txid"_n>();
     auto itr_find_tx = txid_index.lower_bound(txid);
-    eosio_assert( itr_find_tx != txid_index.end(), "error, txid has not been pushed once." );
+    auto itr_find_tx_up = txid_index.upper_bound(txid);
+    for( ; itr_find_tx != itr_find_tx_up; ++itr_find_tx ) {
+        if( itr_find_tx->txid == txid ) {
+            break;
+        }
+    };
+    eosio_assert( itr_find_tx != itr_find_tx_up, "error, txid has not been pushed once." );
 
     auto id = itr_find_tx->id;
     auto to = itr_find_tx->account;
