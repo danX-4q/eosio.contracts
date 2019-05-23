@@ -7,12 +7,50 @@
 
 namespace eosio {
 
+uint32_t safeoracle::dft__last_safed_block_num = 0;
+
 safeoracle::safeoracle(name receiver, name code,  datastream<const char*> ds): 
     contract(receiver, code, ds)
 {
     DEBUG_PRINT_VAR(receiver);
     DEBUG_PRINT_VAR(code);
     DEBUG_PRINT_VAR(this->get_self());
+
+    type_table__globalkv    tbl_globalkv(code, code.value);
+    bool                    is_inited = tbl_globalkv.exists();
+    if (!is_inited) {
+        //首次，需初始化
+        init_globalkv(tbl_globalkv);
+    } else {
+    }
+}
+
+void safeoracle::init_globalkv(type_table__globalkv &tbl_globalkv)
+{
+    globalkv    dlt {
+        .last_safed_block_num = dft__last_safed_block_num
+    };
+    //dlt.print();
+    tbl_globalkv.set(dlt, _code);
+}
+
+void safeoracle::updatelbn( uint32_t lbn )
+{
+    type_table__globalkv    tbl_globalkv(_code, _code.value);
+    globalkv                gkv = tbl_globalkv.get();
+    
+    eosio_assert( lbn > gkv.last_safed_block_num , "error, lbn must be greater then last_safed_block_num." );
+    gkv.last_safed_block_num = lbn;
+    tbl_globalkv.set(gkv, _code);
+}
+
+void safeoracle::resetlbn()
+{
+    type_table__globalkv    tbl_globalkv(_code, _code.value);
+    globalkv    dlt {
+        .last_safed_block_num = dft__last_safed_block_num
+    };
+    tbl_globalkv.set(dlt, _code);
 }
 
 void safeoracle::pushcctx( checksum256 txid, asset ccasset, name account )
@@ -121,4 +159,4 @@ string safeoracle::checksum256_to_string(const checksum256& m)
 
 } /// namespace eosio
 
-EOSIO_DISPATCH( eosio::safeoracle, (pushcctx)(drawasset) )
+EOSIO_DISPATCH( eosio::safeoracle, (updatelbn)(resetlbn)(pushcctx)(drawasset) )

@@ -31,6 +31,12 @@ namespace eosio {
          safeoracle( name receiver, name code,  datastream__const_char ds );
 
          [[eosio::action]]
+         void updatelbn( uint32_t lbn );
+
+         [[eosio::action]]
+         void resetlbn();
+
+         [[eosio::action]]
          void pushcctx( checksum256 txid, asset ccamount, name account );
 
          [[eosio::action]]
@@ -63,6 +69,24 @@ namespace eosio {
             indexed_by<"txid"_n, const_mem_fun<cctx, checksum256, &cctx::get_txid>>
          > type_table__cctx;
 
+         //////////////////////////////
+
+         struct [[eosio::table]] globalkv {
+            uint32_t       last_safed_block_num;
+
+            void print() const
+            {
+               prints("last_safed_block_num = "); printui(last_safed_block_num); prints("\n");
+            }
+         };
+
+         typedef eosio::singleton<"globalkv"_n, globalkv>     type_table__globalkv;
+
+         //////////////////////////////
+
+         void init_globalkv(type_table__globalkv &tbl_globalkv);
+
+         static uint32_t   dft__last_safed_block_num;
          static string checksum256_to_string( const checksum256& m );
          static char hex_to_char( uint8_t hex );
    };
