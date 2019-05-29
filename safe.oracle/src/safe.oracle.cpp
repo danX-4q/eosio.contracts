@@ -80,6 +80,8 @@ void safeoracle::push_each_cctx( type_table__cctx& tbl_cctx, const cctx_info& tx
     auto quantity   = txinfo.quantity;
     auto account    = txinfo.account;
 
+    DEBUG_PRINT_VAR(txid);
+
     auto txid_index = tbl_cctx.get_index<"txid"_n>();
     auto itr_find_tx= txid_index.lower_bound(txid);
     auto itr_find_tx_up = txid_index.upper_bound(txid);
