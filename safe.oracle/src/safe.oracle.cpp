@@ -43,6 +43,14 @@ void safeoracle::pushcctxes( struct chain_pos curpos, struct chain_pos nextpos, 
 
     ///////////////////////////////////////////////////////
 
+    eosio_assert(
+        (
+            nextpos.block_num > curpos.block_num ||
+            ( nextpos.block_num == curpos.block_num && nextpos.tx_index > curpos.tx_index )
+        ),
+        "error, nextpos must > curpos."
+    );
+
     type_table__globalkv    tbl_globalkv(_code, _code.value);
     globalkv    dlt = tbl_globalkv.get();
     eosio_assert(
@@ -146,6 +154,17 @@ void safeoracle::draw_each_asset( type_table__cctx& tbl_cctx, const checksum256 
     
 }
 
+void safeoracle::rstchainpos()
+{
+    type_table__globalkv    tbl_globalkv(_code, _code.value);
+    globalkv    dlt {
+        .block_num = dft__last_safed_block_num,
+        .tx_index = 0
+    };
+    //dlt.print();
+    tbl_globalkv.set(dlt, _code);
+}
+
 char safeoracle::hex_to_char( uint8_t hex )
 {
     //the caller make sure 0 <= hex <= 15
@@ -176,4 +195,4 @@ string safeoracle::checksum256_to_string(const checksum256& m)
 
 } /// namespace eosio
 
-EOSIO_DISPATCH( eosio::safeoracle, (pushcctxes)(drawassets) )
+EOSIO_DISPATCH( eosio::safeoracle, (pushcctxes)(drawassets)(rstchainpos) )

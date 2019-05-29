@@ -55,8 +55,8 @@ namespace eosio {
 
          safeoracle( name receiver, name code,  datastream__const_char ds );
 
-         //[[eosio::action]]
-         //void rstchainpos();
+         [[eosio::action]]
+         void rstchainpos();
 
          [[eosio::action]]
          void pushcctxes( struct chain_pos curpos, struct chain_pos nextpos, const std::vector< struct cctx_info >& cctxes );
