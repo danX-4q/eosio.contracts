@@ -47,8 +47,28 @@ namespace eosio {
             uint8_t           type;    //0: common transfer asset; 1: sync vote result from safe-chain
             name              account; //target account who is in safecode chain
             checksum256       txid;    //txid at safe chain
+            uint8_t           outidx;  //out-index of utxo tx's vout array
             asset             quantity;//asset(amount and token) at txid to account
-            string            detail;  //detail(json string) at txid
+            string            detail;  //detail[or memo](json string) at txid-outidx
+
+            void print() const
+            {
+               prints("type = "); printui(type); prints("\n");
+               prints("account = "); ::eosio::print(account); prints("\n");
+               prints("txkey = "); ::eosio::print(txid); prints("-"); printui(outidx); prints("\n");
+               prints("quantity = "); ::eosio::print(quantity); prints("\n");
+               prints("detail = "); ::eosio::print(detail); prints("\n");
+            }
+         };
+
+         struct cctx_key {
+            checksum256       txid;    //txid at safe chain
+            uint8_t           outidx;  //out-index of utxo tx's vout array
+
+            void print() const
+            {
+               prints("txkey = "); ::eosio::print(txid); prints("-"); printui(outidx); prints("\n");
+            }
          };
 
       public:     //////////////////////////////////////////////////
@@ -62,7 +82,7 @@ namespace eosio {
          void pushcctxes( struct chain_pos curpos, struct chain_pos nextpos, const std::vector< struct cctx_info >& cctxes );
 
          [[eosio::action]]
-         void drawassets( const std::vector< checksum256 >& txids );
+         void drawassets( const std::vector< cctx_key >& txkeys);
 
       private:
 
@@ -70,6 +90,7 @@ namespace eosio {
             uint64_t          id;         //auto increament
             name              account;    //target account who is in safecode chain
             checksum256       txid;       //txid at safe chain
+            uint8_t           outidx;     //out-index of utxo tx's vout array
             asset             quantity;   //asset(amount and token) at txid to account
             uint8_t           status;     //0: new for being drawed; 1: has been drawed
 
@@ -107,7 +128,11 @@ namespace eosio {
 
          void init_globalkv( type_table__globalkv &tbl_globalkv );
          void push_each_cctx( type_table__cctx& tbl_cctx, const cctx_info& txinfo );
-         void draw_each_asset( type_table__cctx& tbl_cctx, const checksum256 txid );
+         void draw_each_asset( type_table__cctx& tbl_cctx, const cctx_key& txkey );
+         template< typename TableIndex >
+         auto findByTxkey( const TableIndex& tbl_index, const struct cctx_key& txkey );
+         template< typename TableIndex >
+         auto findByTxkey( const TableIndex& tbl_index, const checksum256& txid, uint8_t outidx );
 
          static uint32_t   dft__last_safed_block_num;
          static string checksum256_to_string( const checksum256& m );
