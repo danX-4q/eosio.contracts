@@ -79,6 +79,9 @@ namespace eosio {
          void rstchainpos();
 
          [[eosio::action]]
+         void reset( struct chain_pos pos );
+
+         [[eosio::action]]
          void pushcctxes( struct chain_pos curpos, struct chain_pos nextpos, const std::vector< struct cctx_info >& cctxes );
 
          [[eosio::action]]

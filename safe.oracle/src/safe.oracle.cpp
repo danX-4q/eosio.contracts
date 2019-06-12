@@ -180,6 +180,8 @@ void safeoracle::draw_each_asset( type_table__cctx& tbl_cctx, const cctx_key& tx
 
 void safeoracle::rstchainpos()
 {
+    require_auth( get_self() );
+    ////////////////////////////////////////////////////////
     type_table__globalkv    tbl_globalkv(_code, _code.value);
     globalkv    dlt {
         .block_num = dft__last_safed_block_num,
@@ -187,6 +189,23 @@ void safeoracle::rstchainpos()
     };
     //dlt.print();
     tbl_globalkv.set(dlt, _code);
+}
+
+void safeoracle::reset( struct chain_pos pos )
+{
+    require_auth( get_self() );
+    ////////////////////////////////////////////////////////
+    type_table__globalkv    tbl_globalkv(_code, _code.value);
+    globalkv    repos {
+        .block_num = pos.block_num,
+        .tx_index = pos.tx_index
+    };
+    tbl_globalkv.set(repos, _code);
+    ////////////////////////////////////////////////////////
+    type_table__cctx tbl_cctx(get_self(), "global"_n.value);
+    for( auto itr = tbl_cctx.begin(); itr != tbl_cctx.end(); ) {
+        itr = tbl_cctx.erase(itr);
+    }
 }
 
 char safeoracle::hex_to_char( uint8_t hex )
@@ -219,4 +238,4 @@ string safeoracle::checksum256_to_string(const checksum256& m)
 
 } /// namespace eosio
 
-EOSIO_DISPATCH( eosio::safeoracle, (pushcctxes)(drawassets)(rstchainpos) )
+EOSIO_DISPATCH( eosio::safeoracle, (pushcctxes)(drawassets)(rstchainpos)(reset) )
