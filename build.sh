@@ -8,7 +8,7 @@ NC='\033[0m'
 CORES=`getconf _NPROCESSORS_ONLN`
 if [ -d build ]; then
 	pushd build &> /dev/null
-	make -j${CORES}
+	make -j${CORES} || { popd &> /dev/null; rm -rf build; exit 1; }
 	popd &> /dev/null
 else 
 	mkdir -p build
