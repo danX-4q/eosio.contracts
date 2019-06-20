@@ -167,7 +167,6 @@ void token::close( name owner, const symbol& symbol )
 
 ///////////////////////////////////////////////////////////
 
-
 void token::castcreate( asset quantity )
 {
    require_auth( permission_level{_self, "crosschain"_n} );
@@ -181,6 +180,7 @@ void token::castcreate( asset quantity )
    auto existing = statstable.find( sym.code().raw() );
    if ( existing == statstable.end() ) {
       statstable.emplace( _self, [&]( auto& s ) {
+         s.supply.symbol = quantity.symbol;
          s.max_supply   = quantity;
          s.issuer       = "eosio"_n;
       });
